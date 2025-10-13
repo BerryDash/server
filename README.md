@@ -1,5 +1,11 @@
 # Berry Dash Server
 
+> [!CAUTION]
+> This project has moved to the Lncvrt Games originization.
+> You can find the new repository [here](https://github.com/Lncvrt-Games/servers)
+
+---
+
 This is the new rewritten server source code for Berry Dash.
 
 ## Setup
