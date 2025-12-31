@@ -11,10 +11,16 @@ function getIPAddress() {
     return $_SERVER['HTTP_CF_CONNECTING_IP'];
 }
 
-function newConnection() {
+function newConnection($type = 1) {
     include __DIR__.'/../config/connection.php';
     try {
-        $conn = new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
+        $conn = new mysqli(
+            $type == 0 ? $games_db_host : $bd_db_host,
+            $type == 0 ? $games_db_user : $bd_db_user,
+            $type == 0 ? $games_db_pass : $bd_db_pass,
+            $type == 0 ? $games_db_name : $bd_db_name,
+            $type == 0 ? $games_db_port : $bd_db_port
+    );
     } catch (mysqli_sql_exception $e) {
         exitWithMessage("-999");
     }
