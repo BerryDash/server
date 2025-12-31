@@ -1,29 +1,26 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-if (isAllowedDatabaseVersion(getClientVersion())) {
-    if (
-        getClientVersion() == "1.2-beta2" ||
-        getClientVersion() == "1.2" ||
-        getClientVersion() == "1.21" ||
-        getClientVersion() == "1.3-beta1" ||
-        getClientVersion() == "1.3-beta2" ||
-        getClientVersion() == "1.3" ||
-        getClientVersion() == "1.33"
-    ) {
-        require __DIR__ . '/backported/1.2-beta2/syncAccount.php';
-        exit;
-    }
-    if (getClientVersion() == "1.4.0-beta1") {
-        require __DIR__ . '/backported/1.4.0-beta1/saveAccount.php';
-        exit;
-    }
-    if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
-        require __DIR__ . '/backported/1.5/saveAccount.php';
-        exit;
-    }
+if (
+    getClientVersion() == "1.2-beta2" ||
+    getClientVersion() == "1.2" ||
+    getClientVersion() == "1.21" ||
+    getClientVersion() == "1.3-beta1" ||
+    getClientVersion() == "1.3-beta2" ||
+    getClientVersion() == "1.3" ||
+    getClientVersion() == "1.33"
+) {
+    require __DIR__ . '/backported/1.2-beta2/syncAccount.php';
+    exit;
 }
-checkClientDatabaseVersion();
+if (getClientVersion() == "1.4.0-beta1") {
+    require __DIR__ . '/backported/1.4.0-beta1/saveAccount.php';
+    exit;
+}
+if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
+    require __DIR__ . '/backported/1.5/saveAccount.php';
+    exit;
+}
 
 $post = getPostData();
 $token = $post['token'] ?? '';

@@ -1,7 +1,6 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-checkClientDatabaseVersion();
 
 $post = getPostData();
 $uesrId = $post['uesrId'] ?? '';

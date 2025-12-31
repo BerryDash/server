@@ -53,38 +53,6 @@ function exitWithMessage($message, $encrypt = true) {
     exit;
 }
 
-function isLatestVersion($version) {
-    global $latestVersion;
-    if (!isset($latestVersion)) require __DIR__ . '/../config/general.php';
-    return $version === $latestVersion;
-}
-
-function isBetaVersion($version) {
-    global $latestBetaVersion;
-    if (!isset($latestBetaVersion)) require __DIR__ . '/../config/general.php';
-    return $version === $latestBetaVersion;
-}
-
-function isAllowedVersion($version) {
-    global $allowedVersions;
-    if (!isset($allowedVersions)) require __DIR__ . '/../config/general.php';
-    return in_array($version, $allowedVersions);
-}
-
-function isAllowedDatabaseVersion($version) {
-    global $allowedDatabaseVersions;
-    if (!isset($allowedDatabaseVersions)) require __DIR__ . '/../config/general.php';
-    return in_array($version, $allowedDatabaseVersions);
-}
-
-function checkClientDatabaseVersion() {
-    global $allowedDatabaseVersions;
-    if (!isset($allowedDatabaseVersions)) require __DIR__ . '/../config/general.php';
-    if (!isset($_SERVER['HTTP_REQUESTER'])) exitWithMessage("-998");
-    if ($_SERVER['HTTP_REQUESTER'] != "BerryDashClient") exitWithMessage("-998");
-    if (!in_array($_SERVER['HTTP_CLIENTVERSION'] ?? '', $allowedDatabaseVersions)) exitWithMessage("-998");
-}
-
 function getPostData() {
     $raw = file_get_contents("php://input");
     parse_str($raw, $postData);

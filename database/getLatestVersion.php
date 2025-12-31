@@ -1,5 +1,4 @@
 <?php
-require __DIR__ . '/../config/general.php';
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-echo $latestVersion;
+echo "1.8.2";

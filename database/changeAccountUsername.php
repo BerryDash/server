@@ -1,17 +1,14 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-if (isAllowedDatabaseVersion(getClientVersion())) {
-    if (getClientVersion() == "1.3-beta1") {
-        require __DIR__ . '/backported/1.3-beta1/changeAccountUsername.php';
-        exit;
-    }
-    if (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") {
-        require __DIR__ . '/backported/1.3-beta2/changeAccountUsername.php';
-        exit;
-    }
+if (getClientVersion() == "1.3-beta1") {
+    require __DIR__ . '/backported/1.3-beta1/changeAccountUsername.php';
+    exit;
 }
-checkClientDatabaseVersion();
+if (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") {
+    require __DIR__ . '/backported/1.3-beta2/changeAccountUsername.php';
+    exit;
+}
 $conn = newConnection();
 
 $post = getPostData();
