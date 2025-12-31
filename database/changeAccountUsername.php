@@ -1,50 +1,24 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-if (getClientVersion() == "1.3-beta1") {
-    require __DIR__ . '/backported/1.3-beta1/changeAccountUsername.php';
+if (
+    getClientVersion() == "1.2-beta2" ||
+    getClientVersion() == "1.2" ||
+    getClientVersion() == "1.21" ||
+    getClientVersion() == "1.3-beta1" ||
+    getClientVersion() == "1.3-beta2" ||
+    getClientVersion() == "1.3" ||
+    getClientVersion() == "1.33" ||
+    getClientVersion() == "1.4.0-beta1" ||
+    getClientVersion() == "1.4.0" ||
+    getClientVersion() == "1.4.1"
+) {
+    echo "-1";
     exit;
 }
-if (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") {
-    require __DIR__ . '/backported/1.3-beta2/changeAccountUsername.php';
+if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
+    exitWithMessage("-1");
     exit;
 }
-$conn = newConnection();
 
-$post = getPostData();
-$oldusername = $post['oldusername'] ?? '';
-$newusername = $post['newusername'] ?? '';
-$token = $post['token'] ?? '';
-$username = $post['username'] ?? '';
-
-if (!preg_match('/^[a-zA-Z0-9]{3,16}$/', $newusername)) {
-    exitWithMessage(json_encode(["success" => false, "message" => "New username must be 3-16 characters, letters and numbers only"]));
-}
-
-$stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->bind_param("s", $newusername);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    exitWithMessage(json_encode(["success" => false, "message" => "New username already exists"]));
-}
-
-$stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND token = ?");
-$stmt->bind_param("ss", $oldusername, $token);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid old username"]));
-}
-
-$stmt = $conn->prepare("UPDATE users SET username = ? WHERE username = ? AND token = ?");
-$stmt->bind_param("sss", $newusername, $username, $token);
-$stmt->execute();
-
-if ($stmt->affected_rows === 0) {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-}
-
-echo encrypt(json_encode(["success" => true]));
+exitWithMessage(json_encode(["success" => false, "message" => "You must use client version 26.1 or higher to register an account in game"]));

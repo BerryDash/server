@@ -1,44 +1,24 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-$conn = newConnection();
-
-$post = getPostData();
-$oldpassword = $post['oldpassword'] ?? '';
-$newpassword = $post['newpassword'] ?? '';
-$token = $post['token'] ?? '';
-$username = $post['username'] ?? '';
-
-if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_\-+=]{8,}$/', $newpassword)) {
-    exitWithMessage(json_encode(["success" => false, "message" => "New password must be at least 8 characters with at least one letter and one number"]));
+if (
+    getClientVersion() == "1.2-beta2" ||
+    getClientVersion() == "1.2" ||
+    getClientVersion() == "1.21" ||
+    getClientVersion() == "1.3-beta1" ||
+    getClientVersion() == "1.3-beta2" ||
+    getClientVersion() == "1.3" ||
+    getClientVersion() == "1.33" ||
+    getClientVersion() == "1.4.0-beta1" ||
+    getClientVersion() == "1.4.0" ||
+    getClientVersion() == "1.4.1"
+) {
+    echo "-1";
+    exit;
+}
+if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
+    exitWithMessage("-1");
+    exit;
 }
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND token = ?");
-$stmt->bind_param("ss", $username, $token);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-    if (!password_verify($oldpassword, $user['password'])) {
-        exitWithMessage(json_encode(["success" => false, "message" => "Old password is incorrect"]));
-    }
-    if (password_verify($newpassword, $user['password'])) {
-        exitWithMessage(json_encode(["success" => false, "message" => "New password cannot be the same as the old password"]));
-    }
-    $id = $user['id'];
-} else {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-}
-
-$hashednewpassword = password_hash($newpassword, PASSWORD_DEFAULT);
-$token = bin2hex(random_bytes(256));
-
-$stmt = $conn->prepare("UPDATE users SET token = ?, password = ? WHERE id = ?");
-$stmt->bind_param("sss", $token, $hashednewpassword, $id);
-
-$stmt->execute();
-$stmt->close();
-$conn->close();
-
-echo encrypt(json_encode(["success" => true, "token" => $token]));
+exitWithMessage(json_encode(["success" => false, "message" => "You must use client version 26.1 or higher to register an account in game"]));
