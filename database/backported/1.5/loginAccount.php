@@ -1,5 +1,6 @@
 <?php
-$conn = newConnection();
+$conn0 = newConnection(0);
+$conn1 = newConnection(1);
 
 $post = getPostData();
 $username = $post['username'];
@@ -7,12 +8,12 @@ $password = $post['password'];
 $currentHighScore = $post['currentHighScore'] ?? 0;
 $loginType = $post['loginType'] ?? '0';
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 0) {
+if ($result->num_rows != 1) {
     exitWithMessage("-1");
 }
 
@@ -23,15 +24,29 @@ if (!password_verify($password, $user["password"])) {
 }
 
 $id = $user['id'];
-$token = $user['token'];
+$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ?");
+$stmt2->bind_param("i", $id);
+$stmt2->execute();
+$result2 = $stmt2->get_result();
+
+if ($result2->num_rows != 1) {
+    exitWithMessage("-1");
+}
+
+$user2 = $result2->fetch_assoc();
+
+$token = $user2['token'];
 $ip = getIPAddress();
 
-$stmt = $conn->prepare("UPDATE users SET latest_ip = ?, token = ? WHERE id = ?");
-$stmt->bind_param("ssi", $ip, $token, $id);
+$stmt = $conn0->prepare("UPDATE users SET latest_ip = ? WHERE id = ?");
+$stmt->bind_param("si", $ip, $id);
 $stmt->execute();
+$stmt2 = $conn1->prepare("UPDATE userdata SET token = ? WHERE id = ?");
+$stmt2->bind_param("si", $token, $id);
+$stmt2->execute();
 
 if ($currentHighScore > $user['legacy_high_score']) {
-    $stmt = $conn->prepare("UPDATE users SET legacy_high_score = ? WHERE id = ?");
+    $stmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ? WHERE id = ?");
     $stmt->bind_param("ii", $currentHighScore, $id);
     $stmt->execute();
     $user['legacy_high_score'] = $currentHighScore;
@@ -47,4 +62,5 @@ if ($loginType === "0") {
     echo encrypt("1" . ":" . $token . ":" . $user['username'] . ":" . $id);
 }
 $stmt->close();
-$conn->close();
+$conn0->close();
+$conn1->close();
