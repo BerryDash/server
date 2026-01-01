@@ -8,23 +8,23 @@ function setJsonHeader() {
 }
 
 function getIPAddress() {
-    return $_SERVER['HTTP_CF_CONNECTING_IP'];
+    return $_SERVER['REMOTE_ADDR'];
 }
 
 function newConnection($type = 1) {
     include __DIR__.'/../config/connection.php';
+
     try {
-        $conn = new mysqli(
-            $type == 0 ? $games_db_host : $bd_db_host,
-            $type == 0 ? $games_db_user : $bd_db_user,
-            $type == 0 ? $games_db_pass : $bd_db_pass,
-            $type == 0 ? $games_db_name : $bd_db_name,
-            $type == 0 ? $games_db_port : $bd_db_port
-    );
+        return new mysqli(
+            $type === 0 ? $games_db_host : $bd_db_host,
+            $type === 0 ? $games_db_user : $bd_db_user,
+            $type === 0 ? $games_db_pass : $bd_db_pass,
+            $type === 0 ? $games_db_name : $bd_db_name,
+            $type === 0 ? $games_db_port : $bd_db_port
+        );
     } catch (mysqli_sql_exception $e) {
         exitWithMessage("-999");
     }
-    return $conn;
 }
 
 function getClientVersion() {
