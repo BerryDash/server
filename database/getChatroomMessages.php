@@ -13,7 +13,7 @@ $stmt = $conn1->prepare("
     FROM chats 
     WHERE deleted_at = 0 
     ORDER BY id DESC 
-    LIMIT 500
+    LIMIT 50
 ");
 $stmt->execute();
 
