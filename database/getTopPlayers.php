@@ -1,21 +1,22 @@
 <?php
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
-if (getClientVersion() == "0") {
-    require __DIR__ . '/backported/1.4.0-beta1/getTopPlayers.php';
-    exit;
-}
-if (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") {
+if (
+    getClientVersion() == "1.3-beta2" ||
+    getClientVersion() == "1.3" ||
+    getClientVersion() == "1.33" ||
+    getClientVersion() == "0" || // 1.4.x
+    getClientVersion() == "1.5.0" ||
+    getClientVersion() == "1.5.1" ||
+    getClientVersion() == "1.5.2"
+) {
     require __DIR__ . '/backported/1.3-beta2/getTopPlayers.php';
-    exit;
-}
-if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
-    require __DIR__ . '/backported/1.5/getTopPlayers.php';
     exit;
 }
 $post = getPostData();
 $request_type = $post['type'] ?? '';
-$conn = newConnection();
+$conn0 = newConnection(0);
+$conn1 = newConnection(1);
 
 $request_value = "";
 if ($request_type === "0") {
@@ -35,9 +36,7 @@ if ($request_type === "0") {
     exitWithMessage(json_encode([]));
 }
 
-$stmt = $conn->prepare("SELECT username, id, save_data, legacy_high_score 
-  FROM users 
-  WHERE banned = 0 AND leaderboardsBanned = 0");
+$stmt = $conn0->prepare("SELECT username, id FROM users WHERE leaderboards_banned = 0");
 $stmt->execute();
 
 $result = $stmt->get_result();
@@ -46,7 +45,19 @@ $rows = $result->fetch_all(MYSQLI_ASSOC);
 $mapped = [];
 $icons = [];
 foreach ($rows as $row) {
-    $savedata = json_decode($row['save_data'], true);
+    $id = $row["id"];
+    $stmt2 = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? LIMIT 1");
+    $stmt2->bind_param("i", $id);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+
+    if ($result2->num_rows != 1) {
+        continue;
+    }
+
+    $user2 = $result2->fetch_assoc();
+
+    $savedata = json_decode($user2['save_data'], true);
     if (!$savedata) continue;
 
     if ($request_type == "4") {
@@ -54,14 +65,14 @@ foreach ($rows as $row) {
         $value = 0;
         foreach ($berries as $b) $value += (int)($savedata['gameStore'][$b] ?? 0);
     } else {
-        $value = $request_type != 2 ? $request_type != 3 ? ($savedata['gameStore'][$request_value] ?? 0) : ($row['legacy_high_score'] ?? 0) : ($savedata['bird']['customIcon']['balance'] ?? 0);
+        $value = $request_type != 2 ? $request_type != 3 ? ($savedata['gameStore'][$request_value] ?? 0) : ($user2['legacy_high_score'] ?? 0) : ($savedata['bird']['customIcon']['balance'] ?? 0);
     }
     if ($value <= 0) continue;
 
     $customIcon = $savedata['bird']['customIcon']['selected'] ?? null;
 
     if ($customIcon != null && strlen($customIcon) == 36 && $icons[$customIcon] == null) {
-        $stmt = $conn->prepare("SELECT data FROM marketplaceicons WHERE uuid = ?");
+        $stmt = $conn1->prepare("SELECT data FROM marketplaceicons WHERE uuid = ?");
         $stmt->bind_param("s", $customIcon);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -74,7 +85,7 @@ foreach ($rows as $row) {
 
     $mapped[] = [
         'username' => $row['username'],
-        'userid' => $row['id'],
+        'userid' => $id,
         'value' => $value,
         'icon' => $savedata['bird']['icon'] ?? 1,
         'overlay' => $savedata['bird']['overlay'] ?? 0,
@@ -93,4 +104,5 @@ if (getClientVersion() == "1.6" || (getClientVersion() == "1.6.1" && $request_ty
     echo encrypt(json_encode(["entries" => $limited, "customIcons" => $icons == [] ? new stdClass() : $icons]));
 }
 
-$conn->close();
+$conn0->close();
+$conn1->close();
