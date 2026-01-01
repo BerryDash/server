@@ -1,20 +1,31 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require __DIR__ . '/../incl/util.php';
 setPlainHeader();
 
 $post = getPostData();
 $uesrId = $post['uesrId'] ?? '';
 
-$conn = newConnection();
+$conn0 = newConnection(0);
+$conn1 = newConnection(1);
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt = $conn0->prepare("SELECT username, id FROM users WHERE id = ?");
 $stmt->bind_param("i", $uesrId);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    $savedata = json_decode($row['save_data'], true);
+
+    $stmt2 = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ?");
+    $stmt2->bind_param("i", $row['id']);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+    $row2 = $result2->fetch_assoc();
+
+    $savedata = json_decode($row2['save_data'], true);
     $custom = null;
     if (isset($savedata['bird']['customIcon']['selected'])) {
         $selected = $savedata['bird']['customIcon']['selected'];
@@ -48,4 +59,5 @@ if ($result->num_rows > 0) {
 }
 
 $stmt->close();
-$conn->close();
+$conn0->close();
+$conn1->close();
