@@ -69,7 +69,7 @@ function getPostData() {
 
     $decrypted = [];
     foreach ($postData as $k => $v) {
-        $decKey = decrypt($k);
+        $decKey = (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1") ? $k : decrypt($k);
         $decValue = decrypt($v);
         $decrypted[$decKey] = $decValue;
     }

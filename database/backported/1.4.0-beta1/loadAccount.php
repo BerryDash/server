@@ -1,11 +1,8 @@
 <?php
-if (getClientVersion() == "1.5.2") {
+if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
     $post = getPostData();
     $token = $post['gameSession'] ?? '';
     $username = $post['userName'] ?? '';
-} else if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1") {
-    $token = decrypt($_POST['gameSession'] ?? '');
-    $username = decrypt($_POST['userName'] ?? '');
 } else {
     $token = $_POST['gameSession'] ?? '';
     $username = $_POST['userName'] ?? '';
