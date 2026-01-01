@@ -13,7 +13,7 @@ if (
     require __DIR__ . '/backported/1.2-beta2/syncAccount.php';
     exit;
 }
-if (getClientVersion() == "1.4.0-beta1") {
+if (getClientVersion() == "1.4.0-beta1" || getClientVersion() == "1.4.0" || getClientVersion() == "1.4.1") {
     require __DIR__ . '/backported/1.4.0-beta1/saveAccount.php';
     exit;
 }
@@ -37,22 +37,41 @@ try {
     echo encrypt(json_encode(["success" => false, "message" => "Couldn't parse save data"]));
 }
 
-$conn = newConnection();
+$conn0 = newConnection(0);
+$conn1 = newConnection(1);
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE token = ? AND username = ?");
-$stmt->bind_param("ss", $token, $username);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
+$stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows > 0) {
-    $updateStmt = $conn->prepare("UPDATE users SET save_data = ? WHERE token = ? AND username = ?");
-    $updateStmt->bind_param("sss", $savedata, $token, $username);
-    $updateStmt->execute();
-    $updateStmt->close();
-    echo encrypt(json_encode(["success" => true]));
-} else {
+if ($result->num_rows != 1) {
     echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
+    $conn0->close();
+    $conn1->close();
+    exit;
 }
 
-$stmt->close();
-$conn->close();
+$row = $result->fetch_assoc();
+$id = $row["id"];
+
+$stmt = $conn1->prepare("SELECT id FROM userdata WHERE token = ? AND id = ?");
+$stmt->bind_param("si", $token, $id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows != 1) {
+    echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
+    $conn0->close();
+    $conn1->close();
+    exit;
+}
+
+$updateStmt = $conn1->prepare("UPDATE userdata SET save_data = ? WHERE token = ? AND id = ?");
+$updateStmt->bind_param("ssi", $savedata, $token, $id);
+$updateStmt->execute();
+$updateStmt->close();
+echo encrypt(json_encode(["success" => true]));
+
+$conn0->close();
+$conn1->close();
