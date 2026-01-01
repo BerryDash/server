@@ -22,8 +22,8 @@ if ($result->num_rows != 1) exitWithMessage(json_encode(["success" => false]));
 $row = $result->fetch_assoc();
 $id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ?");
-$stmt2->bind_param("i", $id);
+$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
+$stmt2->bind_param("si", $token, $id);
 $stmt2->execute();
 $result2 = $stmt2->get_result();
 if ($result2->num_rows != 1) exitWithMessage(json_encode(["success" => false]));
