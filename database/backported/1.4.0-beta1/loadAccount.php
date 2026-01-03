@@ -15,6 +15,7 @@ $stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows != 1) {
     echo (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") ? encrypt("-1") : "-1";
@@ -26,10 +27,11 @@ if ($result->num_rows != 1) {
 $row = $result->fetch_assoc();
 $id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT save_data, legacy_high_score FROM userdata WHERE id = ? AND token = ? LIMIT 1");
-$stmt2->bind_param("is", $id, $token);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$stmt = $conn1->prepare("SELECT save_data, legacy_high_score FROM userdata WHERE id = ? AND token = ? LIMIT 1");
+$stmt->bind_param("is", $id, $token);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
 
 if ($result2->num_rows != 1) {
     echo (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") ? encrypt("-1") : "-1";

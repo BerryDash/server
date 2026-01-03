@@ -16,25 +16,26 @@ $stmt = $conn1->prepare("
     LIMIT 50
 ");
 $stmt->execute();
-
 $result = $stmt->get_result();
-$rows = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $mapped = [];
 $icons = [];
-foreach ($rows as $row) {
+foreach ($result->fetch_all(mode: MYSQLI_ASSOC) as $row) {
     $userId = $row["userId"];
-    $stmt2 = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? LIMIT 1");
-    $stmt2->bind_param("i", $userId);
-    $stmt2->execute();
-    $result2 = $stmt2->get_result();
+    $stmt = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result2 = $stmt->get_result();
+    $stmt->close();
     if ($result2->num_rows != 1) continue;
     $row2 = $result2->fetch_assoc();
 
-    $stmt3 = $conn0->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
-    $stmt3->bind_param("i", $userId);
-    $stmt3->execute();
-    $result3 = $stmt3->get_result();
+    $stmt = $conn0->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result3 = $stmt->get_result();
+    $stmt->close();
     if ($result3->num_rows != 1) continue;
     $row3 = $result3->fetch_assoc();
 
@@ -47,9 +48,9 @@ foreach ($rows as $row) {
         $stmt->bind_param("s", $customIcon);
         $stmt->execute();
         $result = $stmt->get_result();
+        $stmt->close();
         $rowData = $result->fetch_assoc();
         if ($rowData) {
-            $stmt->close();
             $icons[$customIcon] = $rowData["data"];
         }
     }
@@ -69,11 +70,7 @@ foreach ($rows as $row) {
 }
 
 
-if (getClientVersion() == "1.6") {
-    echo encrypt(json_encode($mapped));
-} else {
-    echo encrypt(json_encode(["messages" => array_reverse($mapped), "customIcons" => $icons == [] ? new stdClass() : $icons]));
-}
+echo encrypt(json_encode(getClientVersion() == "1.6" ? $mapped : ["messages" => array_reverse($mapped), "customIcons" => $icons == [] ? new stdClass() : $icons]));
 
 $conn0->close();
 $conn1->close();

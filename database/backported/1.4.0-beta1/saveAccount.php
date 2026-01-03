@@ -8,10 +8,11 @@ $request_highScore = $_POST['highScore'] ?? 0;
 $request_icon = $_POST['icon'] ?? 0;
 $request_overlay = $_POST['overlay'] ?? 0;
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ?");
 $stmt->bind_param("s", $request_userName);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows != 1) {
     echo "-2";
@@ -22,10 +23,11 @@ if ($result->num_rows != 1) {
 
 $request_uid = $result->fetch_assoc()["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
-$stmt2->bind_param("si", $request_gameSession, $request_uid);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE token = ? AND id = ?");
+$stmt->bind_param("si", $request_gameSession, $request_uid);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
 
 if ($result2->num_rows != 1) {
     echo (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") ? "-2" : "-3";
@@ -41,9 +43,9 @@ $savedata['bird']['icon'] = $request_icon;
 $savedata['bird']['overlay'] = $request_overlay;
 $savedata = json_encode($savedata);
 
-$updateStmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ?, save_data = ? WHERE token = ? AND id = ?");
-$updateStmt->bind_param("issi", $request_highScore, $savedata, $request_gameSession, $request_uid);
-$updateStmt->execute();
-$updateStmt->close();
+$stmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ?, save_data = ? WHERE token = ? AND id = ?");
+$stmt->bind_param("issi", $request_highScore, $savedata, $request_gameSession, $request_uid);
+$stmt->execute();
+$stmt->close();
 
 echo "1";

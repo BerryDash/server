@@ -22,19 +22,19 @@ $stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 $row = $result->fetch_assoc();
 if (!$row) exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-$stmt->close();
 
 $id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ? AND token = ?");
-$stmt2->bind_param("is", $id, $token);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$stmt = $conn1->prepare("SELECT * FROM userdata WHERE id = ? AND token = ?");
+$stmt->bind_param("is", $id, $token);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
 $row2 = $result2->fetch_assoc();
 if (!$row2) exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-$stmt2->close();
 
 $content = base64_encode($request_content);
 $time = time();

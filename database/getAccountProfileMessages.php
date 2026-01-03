@@ -15,6 +15,7 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $targetId);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 echo encrypt(json_encode(array_map(
     function ($row) {

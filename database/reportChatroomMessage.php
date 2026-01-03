@@ -53,6 +53,7 @@ $reason = base64_encode($reason);
 $stmt = $conn1->prepare("INSERT INTO chatroom_reports (chatid, userId, reason, timestamp) VALUES (?, ?, ?, ?)");
 $stmt->bind_param("iisi", $id, $user_id, $reason, $time);
 $stmt->execute();
+$stmt->close();
 
 $conn0->close();
 $conn1->close();

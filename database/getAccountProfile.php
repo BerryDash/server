@@ -12,14 +12,16 @@ $stmt = $conn0->prepare("SELECT username, id FROM users WHERE id = ?");
 $stmt->bind_param("i", $uesrId);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
 
-    $stmt2 = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ?");
-    $stmt2->bind_param("i", $row['id']);
-    $stmt2->execute();
-    $result2 = $stmt2->get_result();
+    $stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ?");
+    $stmt->bind_param("i", $row['id']);
+    $stmt->execute();
+    $result2 = $stmt->get_result();
+    $stmt->close();
     $row2 = $result2->fetch_assoc();
 
     $savedata = json_decode($row2['save_data'], true);
@@ -55,6 +57,5 @@ if ($result->num_rows > 0) {
     echo encrypt(json_encode(["success" => false]));
 }
 
-$stmt->close();
 $conn0->close();
 $conn1->close();

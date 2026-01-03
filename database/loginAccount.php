@@ -31,44 +31,36 @@ $stmt = $conn0->prepare("SELECT id, username, password FROM users WHERE username
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
-if ($result->num_rows != 1) {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
-}
+if ($result->num_rows != 1) exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
+$row = $result->fetch_assoc();
+if (!password_verify($password, $row["password"])) exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
 
-$user = $result->fetch_assoc();
+$id = $row['id'];
 
-if (!password_verify($password, $user["password"])) {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
-}
+$stmt = $conn1->prepare("SELECT token FROM userdata WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
+if ($result2->num_rows != 1) exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
 
-$id = $user['id'];
-
-$stmt2 = $conn1->prepare("SELECT token FROM userdata WHERE id = ?");
-$stmt2->bind_param("i", $id);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
-
-if ($result2->num_rows != 1) {
-    exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
-}
-
-$user2 = $result2->fetch_assoc();
-
-$token = $user2['token'];
+$token = $result2->fetch_assoc()['token'];
 $ip = getIPAddress();
 
 $stmt = $conn0->prepare("UPDATE users SET latest_ip = ? WHERE id = ?");
 $stmt->bind_param("si", $ip, $id);
 $stmt->execute();
-$stmt2 = $conn1->prepare("UPDATE userdata SET token = ? WHERE id = ?");
-$stmt2->bind_param("si", $token, $id);
-$stmt2->execute();
+$stmt->close();
+$stmt = $conn1->prepare("UPDATE userdata SET token = ? WHERE id = ?");
+$stmt->bind_param("si", $token, $id);
+$stmt->execute();
+$stmt->close();
 
-$data = ["session" => $token, "username" => $user['username'], "userid" => $id];
+$data = ["session" => $token, "username" => $row['username'], "userid" => $id];
 
 echo encrypt(json_encode(["success" => true, "data" => $data]));
 
-$stmt->close();
 $conn0->close();
 $conn1->close();

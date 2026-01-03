@@ -69,22 +69,20 @@ $sql = "
 ";
 
 $stmt = $conn1->prepare($sql);
-
-if (!empty($params)) {
-    $stmt->bind_param($types, ...$params);
-}
-
+if (!empty($params)) $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 echo encrypt(json_encode(array_map(
     function ($row) {
         global $conn0;
 
-        $stmt2 = $conn0->prepare("SELECT username FROM users WHERE id = ?");
-        $stmt2->bind_param("i", $row['userId']);
-        $stmt2->execute();
-        $result2 = $stmt2->get_result();
+        $stmt = $conn0->prepare("SELECT username FROM users WHERE id = ?");
+        $stmt->bind_param("i", $row['userId']);
+        $stmt->execute();
+        $result2 = $stmt->get_result();
+        $stmt->close();
         $row2 = $result2->fetch_assoc();
 
         return [

@@ -38,26 +38,22 @@ if ($request_type === "0") {
 
 $stmt = $conn0->prepare("SELECT username, id FROM users WHERE leaderboards_banned = 0");
 $stmt->execute();
-
 $result = $stmt->get_result();
-$rows = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 $mapped = [];
 $icons = [];
-foreach ($rows as $row) {
+foreach ($result->fetch_all(mode: MYSQLI_ASSOC) as $row) {
     $id = $row["id"];
-    $stmt2 = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? LIMIT 1");
-    $stmt2->bind_param("i", $id);
-    $stmt2->execute();
-    $result2 = $stmt2->get_result();
+    $stmt = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result2 = $stmt->get_result();
+$   $stmt->close();
+    if ($result2->num_rows != 1) continue;
+    $row2 = $result2->fetch_assoc();
 
-    if ($result2->num_rows != 1) {
-        continue;
-    }
-
-    $user2 = $result2->fetch_assoc();
-
-    $savedata = json_decode($user2['save_data'], true);
+    $savedata = json_decode($row2['save_data'], true);
     if (!$savedata) continue;
 
     if ($request_type == "4") {
@@ -65,7 +61,7 @@ foreach ($rows as $row) {
         $value = 0;
         foreach ($berries as $b) $value += (int)($savedata['gameStore'][$b] ?? 0);
     } else {
-        $value = $request_type != 2 ? $request_type != 3 ? ($savedata['gameStore'][$request_value] ?? 0) : ($user2['legacy_high_score'] ?? 0) : ($savedata['bird']['customIcon']['balance'] ?? 0);
+        $value = $request_type != 2 ? $request_type != 3 ? ($savedata['gameStore'][$request_value] ?? 0) : ($row2['legacy_high_score'] ?? 0) : ($savedata['bird']['customIcon']['balance'] ?? 0);
     }
     if ($value <= 0) continue;
 
@@ -76,9 +72,9 @@ foreach ($rows as $row) {
         $stmt->bind_param("s", $customIcon);
         $stmt->execute();
         $result = $stmt->get_result();
+        $stmt->close();
         $rowData = $result->fetch_assoc();
         if ($rowData) {
-            $stmt->close();
             $icons[$customIcon] = $rowData["data"];
         }
     }

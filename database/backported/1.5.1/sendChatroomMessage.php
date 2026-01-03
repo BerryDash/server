@@ -13,9 +13,9 @@ $stmt = $conn->prepare("SELECT id FROM userdata WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 $row = $result->fetch_assoc();
 if (!$row) exitWithMessage("-1");
-$stmt->close();
 
 $id = $row["id"];
 $content = base64_encode($request_content);

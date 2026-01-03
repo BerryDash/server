@@ -24,6 +24,7 @@ $stmt = $conn0->prepare("SELECT id, username FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows != 1) {
     echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
@@ -35,10 +36,11 @@ if ($result->num_rows != 1) {
 $row = $result->fetch_assoc();
 $id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT save_data, token FROM userdata WHERE id = ? AND token = ?");
-$stmt2->bind_param("is", $id, $token);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$stmt = $conn1->prepare("SELECT save_data, token FROM userdata WHERE id = ? AND token = ?");
+$stmt->bind_param("is", $id, $token);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
 
 if ($result2->num_rows != 1) {
     echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));

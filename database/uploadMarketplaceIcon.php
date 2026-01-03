@@ -28,18 +28,18 @@ $stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 $row = $result->fetch_assoc();
 if (!$row) exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-$stmt->close();
 $id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
-$stmt2->bind_param("si", $token, $id);
-$stmt2->execute();
-$result2 = $stmt2->get_result();
+$stmt = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
+$stmt->bind_param("si", $token, $id);
+$stmt->execute();
+$result2 = $stmt->get_result();
+$stmt->close();
 $row2 = $result2->fetch_assoc();
 if (!$row2) exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
-$stmt2->close();
 
 $time = time();
 $hash = hash('sha512', base64_decode($filecontent));
@@ -48,19 +48,18 @@ $stmt = $conn1->prepare("SELECT id FROM marketplaceicons WHERE hash = ?");
 $stmt->bind_param("s", $hash);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 if ($result->fetch_assoc()) {
-    $stmt->close();
     exitWithMessage(json_encode(["success" => false, "message" => "This icon already exists in the marketplace"]));
 }
-$stmt->close();
 
 $uuid = uuidv4();
 
 $stmt = $conn1->prepare("INSERT INTO marketplaceicons (uuid, userId, data, hash, price, name, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)");
 $stmt->bind_param("sissisi", $uuid, $id, $filecontent, $hash, $price, $name, $time);
 $stmt->execute();
-$insertId = $conn1->insert_id;
 $stmt->close();
+$insertId = $conn1->insert_id;
 
 echo encrypt(json_encode(["success" => true, "message" => "Icon uploaded successfully! It will be reviewed and accepted or denied soon"]));
 

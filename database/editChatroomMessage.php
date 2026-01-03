@@ -17,9 +17,9 @@ $stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 $row = $result->fetch_assoc();
 if (!$row) exit;
-$stmt->close();
 
 $user_id = $row["id"];
 
@@ -27,9 +27,9 @@ $stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
 $stmt2->bind_param("si", $token, $user_id);
 $stmt2->execute();
 $result2 = $stmt2->get_result();
+$stmt->close();
 $row2 = $result2->fetch_assoc();
 if (!$row2) exit;
-$stmt2->close();
 
 $content = base64_encode($content);
 

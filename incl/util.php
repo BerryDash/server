@@ -3,10 +3,6 @@ function setPlainHeader() {
     header("Content-Type: text/plain");
 }
 
-function setJsonHeader() {
-    header("Content-Type: application/json");
-}
-
 function getIPAddress() {
     return $_SERVER['REMOTE_ADDR'];
 }

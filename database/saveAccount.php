@@ -44,6 +44,7 @@ $stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows != 1) {
     echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
@@ -59,6 +60,7 @@ $stmt = $conn1->prepare("SELECT id FROM userdata WHERE token = ? AND id = ?");
 $stmt->bind_param("si", $token, $id);
 $stmt->execute();
 $result = $stmt->get_result();
+$stmt->close();
 
 if ($result->num_rows != 1) {
     echo encrypt(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
@@ -67,10 +69,10 @@ if ($result->num_rows != 1) {
     exit;
 }
 
-$updateStmt = $conn1->prepare("UPDATE userdata SET save_data = ? WHERE token = ? AND id = ?");
-$updateStmt->bind_param("ssi", $savedata, $token, $id);
-$updateStmt->execute();
-$updateStmt->close();
+$stmt = $conn1->prepare("UPDATE userdata SET save_data = ? WHERE token = ? AND id = ?");
+$stmt->bind_param("ssi", $savedata, $token, $id);
+$stmt->execute();
+$stmt->close();
 echo encrypt(json_encode(["success" => true]));
 
 $conn0->close();

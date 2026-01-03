@@ -14,18 +14,20 @@ $result = $stmt->get_result();
 $rows = [];
 while ($row = $result->fetch_assoc()) {
     $userId = $row["userId"];
-    $stmt2 = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ? LIMIT 1");
-    $stmt2->bind_param("i", $userId);
-    $stmt2->execute();
+    $stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
     $result2 = $stmt2->get_result();
+    $stmt->close();
     if ($result2->num_rows != 1) continue;
     $row2 = $result2->fetch_assoc();
 
-    $stmt3 = $conn0->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
-    $stmt3->bind_param("i", $userId);
-    $stmt3->execute();
-    $result3 = $stmt3->get_result();
+    $stmt = $conn0->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result3 = $stmt->get_result();
     if ($result3->num_rows != 1) continue;
+    $stmt->close();
     $row3 = $result3->fetch_assoc();
 
     $savedata = json_decode($row2['save_data'], true);
