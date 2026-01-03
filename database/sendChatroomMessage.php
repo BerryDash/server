@@ -15,10 +15,11 @@ if (!preg_match('/^[ a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};\':",\.<>\/\?\\\\|`~
     exitWithMessage(json_encode(["success" => false, "message" => "Invalid content recieved"]));
 }
 
-$conn = newConnection();
+$conn0 = newConnection(0);
+$conn1 = newConnection(1);
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE token = ? AND username = ?");
-$stmt->bind_param("ss", $token, $username);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
+$stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -26,14 +27,24 @@ if (!$row) exitWithMessage(json_encode(["success" => false, "message" => "Invali
 $stmt->close();
 
 $id = $row["id"];
+
+$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ? AND token = ?");
+$stmt2->bind_param("is", $id, $token);
+$stmt2->execute();
+$result2 = $stmt2->get_result();
+$row2 = $result2->fetch_assoc();
+if (!$row2) exitWithMessage(json_encode(["success" => false, "message" => "Invalid session token or username, please refresh login"]));
+$stmt2->close();
+
 $content = base64_encode($request_content);
 $time = time();
 
-$stmt = $conn->prepare("INSERT INTO chats (userId, content, timestamp) VALUES (?, ?, ?)");
+$stmt = $conn1->prepare("INSERT INTO chats (userId, content, timestamp) VALUES (?, ?, ?)");
 $stmt->bind_param("isi", $id, $content, $time);
 $stmt->execute();
 $stmt->close();
 
 echo encrypt(json_encode(["success" => true]));
 
-$conn->close();
+$conn0->close();
+$conn1->close();
