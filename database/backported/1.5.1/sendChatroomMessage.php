@@ -7,9 +7,9 @@ if (!preg_match('/^[ a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};\':",\.<>\/\?\\\\|`~
     exitWithMessage("-1");
 }
 
-$conn = newConnection();
+$conn = newConnection(1);
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE token = ?");
+$stmt = $conn->prepare("SELECT id FROM userdata WHERE token = ?");
 $stmt->bind_param("s", $token);
 $stmt->execute();
 $result = $stmt->get_result();
