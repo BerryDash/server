@@ -49,7 +49,7 @@ foreach ($result->fetch_all(mode: MYSQLI_ASSOC) as $row) {
     $stmt->bind_param("i", $id);
     $stmt->execute();
     $result2 = $stmt->get_result();
-$   $stmt->close();
+    $stmt->close();
     if ($result2->num_rows != 1) continue;
     $row2 = $result2->fetch_assoc();
 
@@ -67,7 +67,7 @@ $   $stmt->close();
 
     $customIcon = $savedata['bird']['customIcon']['selected'] ?? null;
 
-    if ($customIcon != null && strlen($customIcon) == 36 && $icons[$customIcon] == null) {
+    if ($customIcon && strlen($customIcon) == 36 && empty($icons[$customIcon])) {
         $stmt = $conn1->prepare("SELECT data FROM marketplaceicons WHERE uuid = ?");
         $stmt->bind_param("s", $customIcon);
         $stmt->execute();
