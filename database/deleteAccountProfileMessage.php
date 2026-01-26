@@ -9,22 +9,20 @@ $targetId = (int)$post['targetId'] ?? 0;
 $token = $post['token'] ?? '';
 $username = $post['username'] ?? '';
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
 if ($result->num_rows != 1) exitWithMessage(json_encode(["success" => false, "message" => 'User info not found']));
-$row = $result->fetch_assoc();
-$user_id = $row["id"];
+$user_id = $result->fetch_assoc()["id"];
 
-$stmt = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
+$stmt = $conn1->prepare("SELECT 1 FROM userdata WHERE token = ? AND id = ?");
 $stmt->bind_param("si", $token, $user_id);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();
 if ($result2->num_rows != 1) exitWithMessage(json_encode(["success" => false, "message" => 'User info not found']));
-$row2 = $result2->fetch_assoc();
 
 $time = time();
 

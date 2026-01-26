@@ -68,7 +68,7 @@ foreach ($result->fetch_all(mode: MYSQLI_ASSOC) as $row) {
     $customIcon = $savedata['bird']['customIcon']['selected'] ?? null;
 
     if ($customIcon && strlen($customIcon) == 36 && empty($icons[$customIcon])) {
-        $stmt = $conn1->prepare("SELECT data FROM marketplaceicons WHERE uuid = ?");
+        $stmt = $conn1->prepare("SELECT data FROM marketplaceicons WHERE id = ?");
         $stmt->bind_param("s", $customIcon);
         $stmt->execute();
         $result = $stmt->get_result();

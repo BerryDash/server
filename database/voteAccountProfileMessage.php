@@ -27,7 +27,7 @@ $stmt->close();
 
 $user_id = $row["id"];
 
-$stmt = $conn1->prepare("SELECT votes, likes FROM userposts WHERE id = ?");
+$stmt = $conn1->prepare("SELECT votes FROM userposts WHERE id = ?");
 $stmt->bind_param("i", $targetId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -39,7 +39,6 @@ if (!$row) {
 $stmt->close();
 
 $votes = json_decode($row["votes"], true) ?? [];
-$likes = (int)$row["likes"];
 if (isset($votes[$user_id])) {
     echo encrypt(json_encode(["success" => false, "message" => 'You have already voted']));
     exit;

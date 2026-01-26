@@ -25,16 +25,23 @@ if ($result->num_rows > 0) {
     $row2 = $result2->fetch_assoc();
 
     $savedata = json_decode($row2['save_data'], true);
-    $custom = null;
-    if (isset($savedata['bird']['customIcon']['selected'])) {
-        $selected = $savedata['bird']['customIcon']['selected'];
-        foreach ($savedata['bird']['customIcon']['data'] as $entry) {
-            if (isset($entry['uuid']) && $entry['uuid'] === $selected) {
-                $custom = $entry['data'];
-                break;
-            }
+    $custom = isset($savedata['bird']['customIcon']['selected']) ?? null;
+
+    $customIcon = $savedata['bird']['customIcon']['selected'] ?? null;
+    $icon = null;
+
+    if ($customIcon != null && strlen($customIcon) == 36) {
+        $stmt = $conn1->prepare("SELECT data FROM marketplaceicons WHERE id = ?");
+        $stmt->bind_param("s", $customIcon);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+        $rowData = $result->fetch_assoc();
+        if ($rowData) {
+            $icon = $rowData["data"];
         }
     }
+
     echo encrypt(json_encode([
         "success" => true,
         "totalNormalBerries" => $savedata['gameStore']['totalNormalBerries'] ?? 0,
@@ -49,7 +56,7 @@ if ($result->num_rows > 0) {
         "name" => $row['username'],
         "icon" => $savedata['bird']['icon'] ?? 1,
         "overlay" => $savedata['bird']['overlay'] ?? 0,
-        "customIcon" => $custom,
+        "customIcon" => $icon,
         "playerIconColor" => $savedata['settings']['colors']['icon'] ?? [255,255,255],
         "playerOverlayColor" => $savedata['settings']['colors']['overlay'] ?? [255,255,255]
     ]));

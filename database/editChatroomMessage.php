@@ -13,7 +13,7 @@ if (!preg_match('/^[ a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};\':",\.<>\/\?\\\\|`~
 $conn0 = newConnection(0);
 $conn1 = newConnection(1);
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -23,7 +23,7 @@ if (!$row) exit;
 
 $user_id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
+$stmt2 = $conn1->prepare("SELECT 1 FROM userdata WHERE token = ? AND id = ?");
 $stmt2->bind_param("si", $token, $user_id);
 $stmt2->execute();
 $result2 = $stmt2->get_result();

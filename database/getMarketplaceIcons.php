@@ -62,7 +62,7 @@ if ($onlyShowEnabled) {
 }
 
 $sql = "
-    SELECT data, price, name, uuid, state, userId
+    SELECT data, price, name, id, state, userId
     FROM marketplaceicons 
     WHERE " . implode(" AND ", $where) . "
     $order
@@ -89,7 +89,7 @@ echo encrypt(json_encode(array_map(
             'username' => $row2['username'] ?? 'Unknown',
             'userid' => $row['userId'],
             'data' => $row['data'],
-            'uuid' => $row['uuid'],
+            'uuid' => $row['id'],
             'price' => (int) $row['state'] == 2 ? 100000000 : $row['price'],
             'name' => base64_decode($row['name'])
         ];
