@@ -14,8 +14,8 @@ if (!preg_match('/^[ a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};\':",\.<>\/\?\\\\|`~
 $conn0 = newConnection(0);
 $conn1 = newConnection(1);
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->bind_param("s", $username);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ? AND token = ?");
+$stmt->bind_param("ss", $username, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -23,8 +23,8 @@ if ($result->num_rows != 1) exitWithMessage(json_encode(["success" => false]));
 $row = $result->fetch_assoc();
 $id = $row["id"];
 
-$stmt = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
-$stmt->bind_param("si", $token, $id);
+$stmt = $conn1->prepare("SELECT * FROM userdata WHERE id = ?");
+$stmt->bind_param("i", $id);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();

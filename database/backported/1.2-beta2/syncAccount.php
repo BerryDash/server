@@ -6,8 +6,8 @@ $user_id = $_POST['userID'] ?? 0;
 $token = $_POST['gameSession'] ?? '';
 $high_score = $_POST['highScore'] ?? 0;
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE id = ?");
-$stmt->bind_param("s", $user_id);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE id = ? AND token = ?");
+$stmt->bind_param("ss", $user_id, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows != 1) {
@@ -19,8 +19,8 @@ if ($result->num_rows != 1) {
 $stmt->close();
 $user_id = $result->fetch_assoc()["id"];
 
-$stmt = $conn1->prepare("SELECT * FROM userdata WHERE token = ? AND id = ?");
-$stmt->bind_param("si", $token, $user_id);
+$stmt = $conn1->prepare("SELECT * FROM userdata WHERE id = ?");
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();
@@ -31,8 +31,8 @@ if ($result2->num_rows != 1) {
     exit;
 }
 
-$updateStmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ? WHERE token = ? AND id = ?");
-$updateStmt->bind_param("isi", $high_score, $token, $user_id);
+$updateStmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ? WHERE id = ?");
+$updateStmt->bind_param("ii", $high_score, $user_id);
 $updateStmt->execute();
 $updateStmt->close();
 

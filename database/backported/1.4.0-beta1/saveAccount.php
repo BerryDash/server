@@ -8,8 +8,8 @@ $request_highScore = $_POST['highScore'] ?? 0;
 $request_icon = $_POST['icon'] ?? 0;
 $request_overlay = $_POST['overlay'] ?? 0;
 
-$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ?");
-$stmt->bind_param("s", $request_userName);
+$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ? AND token = ?");
+$stmt->bind_param("ss", $request_userName, $request_gameSession);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -23,8 +23,8 @@ if ($result->num_rows != 1) {
 
 $request_uid = $result->fetch_assoc()["id"];
 
-$stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE token = ? AND id = ?");
-$stmt->bind_param("si", $request_gameSession, $request_uid);
+$stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ?");
+$stmt->bind_param("i", $request_uid);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();
@@ -43,8 +43,8 @@ $savedata['bird']['icon'] = $request_icon;
 $savedata['bird']['overlay'] = $request_overlay;
 $savedata = json_encode($savedata);
 
-$stmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ?, save_data = ? WHERE token = ? AND id = ?");
-$stmt->bind_param("issi", $request_highScore, $savedata, $request_gameSession, $request_uid);
+$stmt = $conn1->prepare("UPDATE userdata SET legacy_high_score = ?, save_data = ? WHERE id = ?");
+$stmt->bind_param("isi", $request_highScore, $savedata, $request_uid);
 $stmt->execute();
 $stmt->close();
 

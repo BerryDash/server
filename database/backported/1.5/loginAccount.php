@@ -8,7 +8,7 @@ $password = $post['password'];
 $currentHighScore = $post['currentHighScore'] ?? 0;
 $loginType = $post['loginType'] ?? '0';
 
-$stmt = $conn0->prepare("SELECT id, username, password FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT id, username, password, token FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -19,7 +19,7 @@ $row = $result->fetch_assoc();
 if (!password_verify($password, $row["password"])) exitWithMessage("-1");
 
 $id = $row['id'];
-$stmt = $conn1->prepare("SELECT token, legacy_high_score FROM userdata WHERE id = ?");
+$stmt = $conn1->prepare("SELECT legacy_high_score FROM userdata WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result2 = $stmt->get_result();
@@ -27,15 +27,11 @@ $stmt->close();
 if ($result2->num_rows != 1) exitWithMessage("-1");
 $row2 = $result2->fetch_assoc();
 
-$token = $row2['token'];
+$token = $row['token'];
 $ip = getIPAddress();
 
-$stmt = $conn0->prepare("UPDATE users SET latest_ip = ? WHERE id = ?");
-$stmt->bind_param("si", $ip, $id);
-$stmt->execute();
-$stmt->close();
-$stmt = $conn1->prepare("UPDATE userdata SET token = ? WHERE id = ?");
-$stmt->bind_param("si", $token, $id);
+$stmt = $conn0->prepare("UPDATE users SET latest_ip = ?, token = ? WHERE id = ?");
+$stmt->bind_param("ssi", $ip, $token, $id);
 $stmt->execute();
 $stmt->close();
 

@@ -20,8 +20,8 @@ $username = $post['username'] ?? '';
 $conn0 = newConnection(0);
 $conn1 = newConnection(1);
 
-$stmt = $conn0->prepare("SELECT id, username FROM users WHERE username = ?");
-$stmt->bind_param("s", $username);
+$stmt = $conn0->prepare("SELECT id, username FROM users WHERE username = ? AND token = ?");
+$stmt->bind_param("ss", $username, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -36,8 +36,8 @@ if ($result->num_rows != 1) {
 $row = $result->fetch_assoc();
 $id = $row["id"];
 
-$stmt = $conn1->prepare("SELECT save_data, token FROM userdata WHERE id = ? AND token = ?");
-$stmt->bind_param("is", $id, $token);
+$stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ?");
+$stmt->bind_param("i", $id);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();
@@ -54,7 +54,7 @@ $row2 = $result2->fetch_assoc();
 $savedata = json_decode($row2['save_data'], true);
 $savedata['account']['id'] = $id;
 $savedata['account']['name'] = $row['username'];
-$savedata['account']['session'] = $row2['token'];
+$savedata['account']['session'] = $token;
 echo encrypt(json_encode([
     "success" => true,
     "data" => $savedata

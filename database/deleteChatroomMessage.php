@@ -10,8 +10,8 @@ $username = $post['username'] ?? '';
 $conn0 = newConnection(0);
 $conn1 = newConnection(1);
 
-$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
-$stmt->bind_param("s", $username);
+$stmt = $conn0->prepare("SELECT id FROM users WHERE username = ? AND token = ? LIMIT 1");
+$stmt->bind_param("ss", $username, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $stmt->close();
@@ -20,8 +20,8 @@ if ($result->num_rows != 1) exit;
 
 $user_id = $row["id"];
 
-$stmt = $conn1->prepare("SELECT 1 FROM userdata WHERE token = ? AND id = ? LIMIT 1");
-$stmt->bind_param("si", $token, $user_id);
+$stmt = $conn1->prepare("SELECT 1 FROM userdata WHERE id = ? LIMIT 1");
+$stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result2 = $stmt->get_result();
 $stmt->close();

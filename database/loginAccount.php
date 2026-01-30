@@ -27,7 +27,7 @@ $post = getPostData();
 $username = $post['username'];
 $password = $post['password'];
 
-$stmt = $conn0->prepare("SELECT id, username, password FROM users WHERE username = ?");
+$stmt = $conn0->prepare("SELECT id, username, password, token FROM users WHERE username = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -38,23 +38,11 @@ $row = $result->fetch_assoc();
 if (!password_verify($password, $row["password"])) exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
 
 $id = $row['id'];
-
-$stmt = $conn1->prepare("SELECT token FROM userdata WHERE id = ?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result2 = $stmt->get_result();
-$stmt->close();
-if ($result2->num_rows != 1) exitWithMessage(json_encode(["success" => false, "message" => "Invalid username or password"]));
-
-$token = $result2->fetch_assoc()['token'];
+$token = $row['token'];
 $ip = getIPAddress();
 
 $stmt = $conn0->prepare("UPDATE users SET latest_ip = ? WHERE id = ?");
 $stmt->bind_param("si", $ip, $id);
-$stmt->execute();
-$stmt->close();
-$stmt = $conn1->prepare("UPDATE userdata SET token = ? WHERE id = ?");
-$stmt->bind_param("si", $token, $id);
 $stmt->execute();
 $stmt->close();
 

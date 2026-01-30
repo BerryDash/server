@@ -14,8 +14,8 @@ if ($liked !== 0 && $liked !== 1) {
     exit;
 }
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ?");
-$stmt->bind_param("s", $username);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ? AND token = ?");
+$stmt->bind_param("ss", $username, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();

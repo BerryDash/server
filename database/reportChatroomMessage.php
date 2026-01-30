@@ -13,8 +13,8 @@ if (!preg_match('/^[ a-zA-Z0-9!@#\$%\^&\*\(\)_\+\-=\[\]\{\};\':",\.<>\/\?\\\\|`~
 $conn0 = newConnection(0);
 $conn1 = newConnection(1);
 
-$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
-$stmt->bind_param("s", $username);
+$stmt = $conn0->prepare("SELECT * FROM users WHERE username = ? AND token = ? LIMIT 1");
+$stmt->bind_param("ss", $username, $token);
 $stmt->execute();
 $result = $stmt->get_result();
 $row = $result->fetch_assoc();
@@ -23,8 +23,8 @@ $stmt->close();
 
 $user_id = $row["id"];
 
-$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ? AND token = ? LIMIT 1");
-$stmt2->bind_param("is", $user_id, $token);
+$stmt2 = $conn1->prepare("SELECT * FROM userdata WHERE id = ? LIMIT 1");
+$stmt2->bind_param("i", $user_id);
 $stmt2->execute();
 $result2 = $stmt2->get_result();
 $row2 = $result2->fetch_assoc();
