@@ -47,7 +47,7 @@ $icon = $savedata['bird']['icon'] ?? 1;
 $overlay = $savedata['bird']['overlay'] ?? 0;   
 if (getClientVersion() == "1.5.0" || getClientVersion() == "1.5.1" || getClientVersion() == "1.5.2") {
     $birdColor = $savedata['settings']['colors']['icon'] ?? [255,255,255];
-    $msg = "1:" . $user2['legacy_high_score'] . ":" . $icon . ":" . $overlay . ":0:0:0:0:0:0:" . ":" . $birdColor[0] . ":" . $birdColor[1] . ":" . $birdColor[2];
+    $msg = "1:" . $user2['legacy_high_score'] . ":" . $icon . ":" . $overlay . ":0:0:0:0:0:0::" . $birdColor[0] . ":" . $birdColor[1] . ":" . $birdColor[2];
     if (getClientVersion() == "1.5.2") {
         $overlayColor = $savedata['settings']['colors']['overlay'] ?? [255,255,255];
         $msg .= ":" . $overlayColor[0] . ":" . $overlayColor[1] . ":" . $overlayColor[2];

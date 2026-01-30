@@ -6,7 +6,7 @@ $stmt = $conn1  ->prepare("
     SELECT id, content, userId 
     FROM chats
     WHERE deleted_at = 0 
-    ORDER BY id DESC LIMIT 50
+    ORDER BY id DESC LIMIT 49
 ");
 $stmt->execute();
 $result = $stmt->get_result();
@@ -17,7 +17,7 @@ while ($row = $result->fetch_assoc()) {
     $stmt = $conn1->prepare("SELECT save_data FROM userdata WHERE id = ? LIMIT 1");
     $stmt->bind_param("i", $userId);
     $stmt->execute();
-    $result2 = $stmt2->get_result();
+    $result2 = $stmt->get_result();
     $stmt->close();
     if ($result2->num_rows != 1) continue;
     $row2 = $result2->fetch_assoc();
@@ -52,7 +52,7 @@ while ($row = $result->fetch_assoc()) {
     ]);
 }
 
-echo encrypt("1" . ":" . implode("|", array_reverse($rows)));
+echo encrypt("1:" . implode("|", array_reverse($rows)));
 
 $conn0->close();
 $conn1->close();

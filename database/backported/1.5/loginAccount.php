@@ -48,9 +48,9 @@ $birdColor = $savedata['settings']['colors']['icon'] ?? [255,255,255];
 $overlayColor = $savedata['settings']['colors']['overlay'] ?? [255,255,255];
 
 if ($loginType === "0") {
-    echo encrypt("1" . ":" . $token . ":" . $row['username'] . ":" . $id . ":" . $row2['legacy_high_score'] . ":" . ($savedata['bird']['icon'] ?? 1) . ":" . ($savedata['bird']['overlay'] ?? 0) . ":0:0:0:0:0:" . ":" . $birdColor[0] . ":" . $birdColor[1] . ":" . $birdColor[2] . ":" . $overlayColor[0] . ":" . $overlayColor[1] . ":" . $overlayColor[2]);
+    echo encrypt("1:" . $token . ":" . $row['username'] . ":" . $id . ":" . $row2['legacy_high_score'] . ":" . ($savedata['bird']['icon'] ?? 1) . ":" . ($savedata['bird']['overlay'] ?? 0) . ":0:0:0:0:0::" . $birdColor[0] . ":" . $birdColor[1] . ":" . $birdColor[2] . ":" . $overlayColor[0] . ":" . $overlayColor[1] . ":" . $overlayColor[2]);
 } elseif ($loginType === "1") {
-    echo encrypt("1" . ":" . $token . ":" . $row['username'] . ":" . $id);
+    echo encrypt("1:" . $token . ":" . $row['username'] . ":" . $id);
 }
 $conn0->close();
 $conn1->close();

@@ -12,7 +12,7 @@ if ($result->num_rows > 0) {
     
     while ($row = $result->fetch_assoc()) {
         $id = $row["id"];
-        $stmt = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? AND legacy_high_score > 0 ORDER BY legacy_high_score DESC LIMIT 1");
+        $stmt = $conn1->prepare("SELECT legacy_high_score, save_data FROM userdata WHERE id = ? AND legacy_high_score > 0 LIMIT 1");
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result2 = $stmt->get_result();
@@ -34,6 +34,11 @@ if ($result->num_rows > 0) {
         }
     }
 
+    usort($topPlayers, function ($a, $b) {
+        $aScore = (int)explode(":", $a)[1];
+        $bScore = (int)explode(":", $b)[1];
+        return $bScore <=> $aScore;
+    });
     if (getClientVersion() == "1.3-beta2" || getClientVersion() == "1.3" || getClientVersion() == "1.33") {
         echo implode("::", $topPlayers);
     } else if (getClientVersion() == "0") {
