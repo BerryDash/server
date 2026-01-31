@@ -16,7 +16,7 @@ $onlyShowEnabled = isset($post['onlyShowEnabled']) ? (string) $post['onlyShowEna
 $onlyShowValue = (string) $post['onlyShowValue'] ?? '';
 $currentIcons = json_decode(base64_decode((string) ($post['currentIcons'] ?? 'W10K')));
 
-$where = ["(state = 1 OR state = 2)"];
+$where = ["state = 1"];
 $params = [];
 $types = "";
 $order = match ($sortBy) {
